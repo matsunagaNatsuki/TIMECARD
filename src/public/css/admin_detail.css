@@ -1,0 +1,210 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #f3f5f7;
+    color: #111;
+    font-family: "Helvetica Neue", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Yu Gothic", sans-serif;
+    line-height: 1.5;
+}
+
+.detail-wrap {
+    max-width: 960px;
+    margin: 24px auto 40px;
+    padding: 0 16px;
+}
+
+.page-title {
+    margin: 8px 0 16px;
+    padding-left: 12px;
+    border-left: 6px solid #111;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.card.attendance-detail {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .05);
+    overflow: hidden;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.col-hd {
+    width: 200px;
+}
+
+.col-v {
+    width: auto;
+}
+
+.detail-table th,
+.detail-table td {
+    padding: 16px;
+    border-top: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.detail-table tr:first-child th,
+.detail-table tr:first-child td {
+    border-top: none;
+}
+
+.detail-table th {
+    background: #fff;
+    color: #6b7280;
+    font-weight: 800;
+    text-align: left;
+    letter-spacing: .02em;
+}
+
+.cell-center {
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: .04em;
+}
+
+.cell-pair .pair {
+    display: grid;
+    grid-template-columns: 1fr 24px 1fr;
+    align-items: center;
+    justify-items: center;
+    gap: 10px;
+}
+
+.cell-pair .sep {
+    color: #9ca3af;
+    font-weight: 800;
+}
+
+.time-input {
+    width: 110px;
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    border-radius: 8px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.notes {
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f8fafc;
+    resize: vertical;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.btn-primary {
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px 28px;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .12em;
+    transition: transform .04s ease, filter .15s ease;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.05);
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+@media (max-width: 640px) {
+    .col-hd {
+        width: 120px;
+    }
+
+    .time-input {
+        width: 96px;
+    }
+}
+
+
+.form__error {
+    color: #ef4444;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 4px;
+    min-height: 1.1em;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.cell-pair .pair {
+    display: grid;
+    grid-template-columns: 1fr 24px 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    justify-items: center;
+    column-gap: 10px;
+    row-gap: 4px;
+}
+
+.cell-pair .pair .time-input {
+    grid-row: 1;
+}
+
+.cell-pair .pair .time-input:first-of-type {
+    grid-column: 1;
+}
+
+.cell-pair .pair .time-input:last-of-type {
+    grid-column: 3;
+}
+
+.cell-pair .pair .sep {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.cell-pair .pair .time-input+.form__error {
+    grid-row: 2;
+    grid-column: 1;
+    justify-self: start;
+}
+
+.cell-pair .pair .form__error:last-child {
+    grid-row: 2;
+    grid-column: 3;
+    justify-self: end;
+}
+
+.notes+.form__error {
+    margin-top: 6px;
+}
+
+.time-input:focus,
+.notes:focus {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+}

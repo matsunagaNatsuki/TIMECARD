@@ -1,0 +1,164 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #f3f5f7;
+    color: #6b7280;
+    font-family: "Helvetica Neue", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto,
+        "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Yu Gothic", sans-serif;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 960px;
+    margin: 28px auto 60px;
+    padding: 0 16px;
+}
+
+.container>h1 {
+    margin: 8px 0 18px;
+    padding-left: 12px;
+    border-left: 6px solid #111;
+    color: #111;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.Month-change {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .05);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+}
+
+.previous-month,
+.next-month {
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.previous-month {
+    justify-self: start;
+}
+
+.next-month {
+    justify-self: end;
+}
+
+.month-display {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #111;
+}
+
+.table {
+    width: 100%;
+    background: #fff;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .05);
+}
+
+.table thead.table-light th {
+    background: #fff;
+    color: #6b7280;
+    font-weight: 800;
+    letter-spacing: .07em;
+    border-top: none;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.table th,
+.table td {
+    padding: 12px 14px;
+    text-align: center;
+    border-top: 2px solid #e5e7eb;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.table td a {
+    color: #111;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.table td a:hover {
+    text-decoration: underline;
+}
+
+.table tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+.table tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+.export-form {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+    width: 150px;
+    float: right;
+}
+
+.export_btn.btn {
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 33px;
+    border-radius: 5px;
+    background: #111;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .12em;
+    transition: transform .04s ease, filter .15s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.export_btn.btn:hover {
+    filter: brightness(1.05);
+}
+
+.export_btn.btn:active {
+    transform: translateY(1px);
+}
+
+@media (max-width: 850px) {
+    .container {
+        margin: 22px auto 40px;
+    }
+
+    .Month-change {
+        grid-template-columns: 1fr auto 1fr;
+        padding: 8px 10px;
+    }
+
+    .table th,
+    .table td {
+        padding: 10px 8px;
+    }
+}
+
+@media (min-width: 1400px) and (max-width: 1540px) {
+    .container {
+        max-width: 1040px;
+    }
+}

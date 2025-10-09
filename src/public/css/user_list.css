@@ -1,0 +1,90 @@
+body{
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #555;
+    background-color: rgba(255, 255, 255, 0.079);
+}
+
+.container h1 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.Month-change {
+    justify-content: center;
+    margin-bottom: 35px !important;
+    margin-top: 35px;
+    align-items: center;
+    background-color: white;
+    padding: 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+
+.previous-month {
+    margin-left: 0;
+    margin-right: auto;
+    font-size: 0.95rem;
+}
+
+.next-month {
+    margin-left: auto;
+    margin-right: 0;
+    font-size: 0.95rem;
+}
+
+.month-display {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    font-size: 0.95rem;
+    border-radius: 10px;
+}
+
+.table thead th {
+    background-color: white;
+    font-weight: bold;
+    padding: 12px;
+    border-bottom: 3px solid #dee2e6;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 10px;
+}
+
+.table td {
+    padding: 10px;
+    vertical-align: middle;
+    text-align: center;
+    border-bottom: 2px solid #dee2e6;
+    color: #333;
+}
+
+.table a {
+    display: inline-block;
+    padding: 4px 10px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+
+
+
+

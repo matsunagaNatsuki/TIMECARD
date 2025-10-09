@@ -1,0 +1,363 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #f3f5f7;
+    color: #111;
+    font-family: "Helvetica Neue", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Yu Gothic", sans-serif;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 960px;
+    margin: 32px auto 56px;
+    padding: 0 16px;
+}
+
+.page-title {
+    margin: 8px 0 18px;
+    padding-left: 12px;
+    border-left: 6px solid #111;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.approval-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-approval {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .05);
+    overflow: hidden;
+}
+
+.approval-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.approval-table th,
+.approval-table td {
+    padding: 18px 20px;
+    border-top: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.approval-table tr:first-child th,
+.approval-table tr:first-child td {
+    border-top: none;
+}
+
+.approval-table th {
+    width: 200px;
+    color: #6b7280;
+    font-weight: 800;
+    text-align: left;
+    letter-spacing: .02em;
+}
+
+.approval-table td {
+    text-align: center;
+    font-weight: 700;
+}
+
+.cell-center.left {
+    padding-right: 10px;
+}
+
+.cell-center.right {
+    padding-left: 10px;
+}
+
+/* ===== Pair（出勤〜退勤 / 休憩〜休憩） ===== */
+.cell-pair .pair {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr;
+    align-items: center;
+    justify-items: center;
+    gap: 8px;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.sep {
+    color: #9ca3af;
+    font-weight: 800;
+}
+
+.time-input {
+    width: 110px;
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f8fafc;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.time-input[disabled] {
+    color: #374151;
+    opacity: 1;
+    background: #f8fafc;
+}
+
+.notes {
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f8fafc;
+    resize: vertical;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.notes[disabled] {
+    color: #374151;
+    opacity: 1;
+    background: #f8fafc;
+}
+
+.btn.btn-approve {
+    align-self: flex-end;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: transform .04s ease, filter .15s ease;
+}
+
+.btn.btn-approve:hover {
+    filter: brightness(1.05);
+}
+
+.btn.btn-approve:active {
+    transform: translateY(1px);
+}
+
+.btn.btn-approve[disabled] {
+    opacity: .55;
+    cursor: default;
+    filter: none;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #f3f5f7;
+    color: #111;
+    font-family: "Helvetica Neue", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Yu Gothic", sans-serif;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 960px;
+    margin: 32px auto 56px;
+    padding: 0 16px;
+}
+
+.page-title {
+    margin: 8px 0 18px;
+    padding-left: 12px;
+    border-left: 6px solid #111;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.approval-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Card（表全体） ===== */
+.admin-approval {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .05);
+    overflow: hidden;
+}
+
+.approval-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.approval-table th,
+.approval-table td {
+    padding: 18px 20px;
+    border-top: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.approval-table tr:first-child th,
+.approval-table tr:first-child td {
+    border-top: none;
+}
+
+.approval-table th {
+    width: 200px;
+    color: #6b7280;
+    font-weight: 800;
+    text-align: left;
+    letter-spacing: .02em;
+}
+
+.approval-table td {
+    text-align: center;
+    font-weight: 700;
+}
+
+.cell-center.left {
+    padding-right: 10px;
+}
+
+.cell-center.right {
+    padding-left: 10px;
+}
+
+.cell-pair .pair {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr;
+    align-items: center;
+    justify-items: center;
+    gap: 8px;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.sep {
+    color: #9ca3af;
+    font-weight: 800;
+}
+
+.time-input {
+    width: 110px;
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f8fafc;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.time-input[disabled] {
+    color: #374151;
+    opacity: 1;
+    background: #f8fafc;
+}
+
+.notes {
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f8fafc;
+    resize: vertical;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.notes[disabled] {
+    color: #374151;
+    opacity: 1;
+    background: #f8fafc;
+}
+
+.btn.btn-approve {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    flex: 0 0 auto;
+    display: inline-block;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: transform .04s ease, filter .15s ease;
+}
+
+.btn.btn-approve:hover {
+    filter: brightness(1.05);
+}
+
+.btn.btn-approve:active {
+    transform: translateY(1px);
+}
+
+.btn.btn-approve[disabled] {
+    opacity: .55;
+    cursor: default;
+    filter: none;
+}
+
+@media (width: 1400px) and (max-width: 1540px) {
+    .container {
+        max-width: 1024px;
+    }
+}
+
+@media (max-width: 850px) and (width: 768px) {
+    .approval-table th {
+        width: 170px;
+    }
+
+    .cell-pair .pair {
+        grid-template-columns: 1fr 26px 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 24px auto 40px;
+    }
+
+    .approval-table th {
+        width: 140px;
+        padding: 14px;
+    }
+
+    .approval-table td {
+        padding: 14px;
+    }
+
+    .cell-pair .pair {
+        grid-template-columns: 1fr 20px 1fr;
+        gap: 6px;
+    }
+
+    .time-input {
+        width: 96px;
+    }
+}
