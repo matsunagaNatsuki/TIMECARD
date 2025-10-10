@@ -79,7 +79,7 @@ class StampTest extends TestCase
     }
 
     // 出勤機能
-    public function test_stamp_page_attendance_function()
+    public function test_stamp_page_attendance_function_attendance_btn()
     {
         $user = User::factory()->create();
 
@@ -93,4 +93,21 @@ class StampTest extends TestCase
         $response = $this->actingAs($user)->get('/attendance');
         $response->assertSee('出勤中');
     }
+
+    public function test_stamp_page_attendance_function_attendance_check()
+    {
+        $user = User::factory()->create();
+        Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now()->subHours(8),
+            'clock_out' => now(),
+            'status' => 'clock_out'
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertDontSee('<button type="submit">出勤</button>', false);
+    }
+
+
 }
