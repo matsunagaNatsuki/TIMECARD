@@ -109,5 +109,26 @@ class StampTest extends TestCase
         $response->assertDontSee('<button type="submit">出勤</button>', false);
     }
 
+    public function test_stamp_page_attendance_function_work_time()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post('/attendance', [
+            'action' => 'clock_in',
+        ]);
+
+        $attendance = \App\Models\Attendance::where('user_id', $user->id)->first();
+
+        $date = \Carbon\Carbon::parse($attendance->clock_in)->format('m/d');
+        $time = \Carbon\Carbon::parse($attendance->clock_in)->format('H:i');
+
+        $response = $this->actingAs($user)->get('/attendance/list');
+
+        $response->assertStatus(200);
+        $response->assertSee($date);
+        $response->assertSee($time);
+    }
+
+    // 休憩機能
+
 
 }
