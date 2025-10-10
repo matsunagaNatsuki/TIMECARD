@@ -129,6 +129,28 @@ class StampTest extends TestCase
     }
 
     // 休憩機能
+    public function test_stamp_page_break_function_break_btn()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now(),
+            'status' => 'working',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSee('休憩入');
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_start'
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSeeText('休憩中');
+    }
 
 
 }
