@@ -152,5 +152,62 @@ class StampTest extends TestCase
         $response->assertSeeText('休憩中');
     }
 
+    public function test_stamp_page_break_function_break_check()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now(),
+            'status' => 'working',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_start'
+        ]);
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_end'
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSee('休憩入');
+    }
+
+    public function test_stamp_page_break_function_break_end_btn()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now(),
+            'status' => 'working',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_start'
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSee('休憩戻');
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_end'
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSeeText('出勤中');
+    }
+
+
+
 
 }
