@@ -109,7 +109,7 @@ class StampTest extends TestCase
         $response->assertDontSee('<button type="submit">出勤</button>', false);
     }
 
-    public function test_stamp_page_attendance_function_work_time()
+    public function test_stamp_page_attendance_function_work_time_list()
     {
         $user = User::factory()->create();
         $this->actingAs($user)->post('/attendance', [
@@ -206,6 +206,79 @@ class StampTest extends TestCase
         $response = $this->actingAs($user)->get('/attendance');
         $response->assertSeeText('出勤中');
     }
+
+    public function test_stamp_page_break_function_break_end_check()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now(),
+            'status' => 'working',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_start'
+        ]);
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_end'
+        ]);
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_start'
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSee('休憩戻');
+    }
+
+    public function test_stamp_page_attendance_function_break_time_list()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now(),
+            'status' => 'working',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_start'
+        ]);
+
+        $this->actingAs($user)->post('/attendance', [
+            'attendance_id' => $attendance->id,
+            'action' => 'break_end'
+        ]);
+
+        $break = \App\Models\BreakTime::where('attendance_id', $attendance->id)->first();
+
+        $breakStartDate = \Carbon\Carbon::parse($break->break_start)->format('m/d');
+        $breakStartTime = \Carbon\Carbon::parse($break->break_start)->format('H:i');
+
+        $breakEndDate = \Carbon\Carbon::parse($break->break_end)->format('m/d');
+        $breakEndTime = \Carbon\Carbon::parse($break->break_end)->format('H:i');
+
+        $response = $this->actingAs($user)->get('/attendance/list');
+
+        $response->assertStatus(200);
+        $response->assertSee($breakStartDate);
+        $response->assertSee($breakStartTime);
+
+        $response->assertSee($breakEndDate);
+        $response->assertSee($breakEndTime);
+    }
+
+
 
 
 
