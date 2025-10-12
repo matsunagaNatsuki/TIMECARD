@@ -8,6 +8,7 @@ use Database\Seeders\DatabaseSeeder;
 use App\Models\Attendance;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
+use Carbon\Carbon;
 
 class AttendanceTest extends TestCase
 {
@@ -71,6 +72,15 @@ class AttendanceTest extends TestCase
             'break_end' => $previousMonthDate->copy()->setTime(13, 0),
         ]);
 
+        $breakMinutes = 60;
+        $clockIn = Carbon::parse($attendance->clock_in);
+        $clockOut = Carbon::parse($attendance->clock_out);
+
+        $workMinutes = $clockOut->diffInMinutes($clockIn) - $breakMinutes;
+
+        $breakFormatted = sprintf('%d:%02d', intdiv($breakMinutes, 60), $breakMinutes % 60);
+        $totalFormatted = sprintf('%d:%02d', intdiv($workMinutes, 60), $workMinutes % 60);
+
         $response = $this->actingAs($user)->get(
             route('attendance.list', ['month' => $previousMonthDate->format('Y-m')])
         );
@@ -80,5 +90,7 @@ class AttendanceTest extends TestCase
         $response->assertSeeText($attendance->date->format('m/d'));
         $response->assertSeeText($attendance->clock_in->format('H:i'));
         $response->assertSeeText($attendance->clock_out->format('H:i'));
+        $response->assertSeeText($breakFormatted);
+        $response->assertSeeText($totalFormatted);
     }
 }
