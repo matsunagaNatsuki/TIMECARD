@@ -58,7 +58,6 @@ class AttendanceTest extends TestCase
         $user = \App\Models\User::factory()->create();
 
         $previousMonthDate = now()->subMonth()->startOfMonth();
-
         $attendance = \App\Models\Attendance::factory()->create([
             'user_id'   => $user->id,
             'date'      => $previousMonthDate->toDateString(),
@@ -82,6 +81,10 @@ class AttendanceTest extends TestCase
         $breakFormatted = sprintf('%d:%02d', intdiv($breakMinutes, 60), $breakMinutes % 60);
         $totalFormatted = sprintf('%d:%02d', intdiv($workMinutes, 60), $workMinutes % 60);
 
+        $response = $this->actingAs($user)->get('/attendance/list');
+
+        $response->assertStatus(200);
+
         $response = $this->actingAs($user)->get(
             route('attendance.list', ['month' => $previousMonthDate->format('Y-m')])
         );
@@ -100,7 +103,6 @@ class AttendanceTest extends TestCase
         $user = \App\Models\User::factory()->create();
 
         $nextMonthDate = now()->subMonth()->startOfMonth();
-
         $attendance = \App\Models\Attendance::factory()->create([
             'user_id'   => $user->id,
             'date'      => $nextMonthDate->toDateString(),
@@ -124,6 +126,9 @@ class AttendanceTest extends TestCase
         $breakFormatted = sprintf('%d:%02d', intdiv($breakMinutes, 60), $breakMinutes % 60);
         $totalFormatted = sprintf('%d:%02d', intdiv($workMinutes, 60), $workMinutes % 60);
 
+        $response = $this->actingAs($user)->get('/attendance/list');
+        $response->assertStatus(200);
+
         $response = $this->actingAs($user)->get(
             route('attendance.list', ['month' => $nextMonthDate->format('Y-m')])
         );
@@ -135,5 +140,27 @@ class AttendanceTest extends TestCase
         $response->assertSeeText($attendance->clock_out->format('H:i'));
         $response->assertSeeText($breakFormatted);
         $response->assertSeeText($totalFormatted);
+    }
+
+    public function test_attendance_user_list_page_detail_redirect()
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now()->setTime(9,0),
+            'clock_out' => now()->setTime(18,0),
+            'status' => 'clock_out',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance/list');
+        $response->assertStatus(200);
+        $response->assertSee('詳細');
+
+        $detailResponse = $this->actingAs($user)->get(
+            'attendance/detail/' . $attendance->id);
+
+        $detailResponse->assertStatus(200);
     }
 }
