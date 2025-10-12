@@ -58,6 +58,7 @@ class AttendanceTest extends TestCase
         $user = \App\Models\User::factory()->create();
 
         $previousMonthDate = now()->subMonth()->startOfMonth();
+
         $attendance = \App\Models\Attendance::factory()->create([
             'user_id'   => $user->id,
             'date'      => $previousMonthDate->toDateString(),
@@ -83,6 +84,48 @@ class AttendanceTest extends TestCase
 
         $response = $this->actingAs($user)->get(
             route('attendance.list', ['month' => $previousMonthDate->format('Y-m')])
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertSeeText($attendance->date->format('m/d'));
+        $response->assertSeeText($attendance->clock_in->format('H:i'));
+        $response->assertSeeText($attendance->clock_out->format('H:i'));
+        $response->assertSeeText($breakFormatted);
+        $response->assertSeeText($totalFormatted);
+    }
+
+    public function test_attendance_user_list_page_next_month_get()
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $nextMonthDate = now()->subMonth()->startOfMonth();
+
+        $attendance = \App\Models\Attendance::factory()->create([
+            'user_id'   => $user->id,
+            'date'      => $nextMonthDate->toDateString(),
+            'clock_in'  => $nextMonthDate->copy()->setTime(9, 0),
+            'clock_out' => $nextMonthDate->copy()->setTime(18, 0),
+            'status'    => 'clock_out',
+        ]);
+
+        $attendance->breaks()->create([
+            'attendance_id' => $attendance->id,
+            'break_start' => $nextMonthDate->copy()->setTime(12, 0),
+            'break_end' => $nextMonthDate->copy()->setTime(13, 0),
+        ]);
+
+        $breakMinutes = 60;
+        $clockIn = Carbon::parse($attendance->clock_in);
+        $clockOut = Carbon::parse($attendance->clock_out);
+
+        $workMinutes = $clockOut->diffInMinutes($clockIn) - $breakMinutes;
+
+        $breakFormatted = sprintf('%d:%02d', intdiv($breakMinutes, 60), $breakMinutes % 60);
+        $totalFormatted = sprintf('%d:%02d', intdiv($workMinutes, 60), $workMinutes % 60);
+
+        $response = $this->actingAs($user)->get(
+            route('attendance.list', ['month' => $nextMonthDate->format('Y-m')])
         );
 
         $response->assertStatus(200);
