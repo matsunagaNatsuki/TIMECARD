@@ -51,4 +51,34 @@ class AttendanceTest extends TestCase
 
         $response->assertSeeText($startOfMonth);
     }
+
+    public function test_attendance_user_list_page_previous_month_get()
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $previousMonthDate = now()->subMonth()->startOfMonth();
+        $attendance = \App\Models\Attendance::factory()->create([
+            'user_id'   => $user->id,
+            'date'      => $previousMonthDate->toDateString(),
+            'clock_in'  => $previousMonthDate->copy()->setTime(9, 0),
+            'clock_out' => $previousMonthDate->copy()->setTime(18, 0),
+            'status'    => 'clock_out',
+        ]);
+
+        $attendance->breaks()->create([
+            'attendance_id' => $attendance->id,
+            'break_start' => $previousMonthDate->copy()->setTime(12, 0),
+            'break_end' => $previousMonthDate->copy()->setTime(13, 0),
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            route('attendance.list', ['month' => $previousMonthDate->format('Y-m')])
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertSeeText($attendance->date->format('m/d'));
+        $response->assertSeeText($attendance->clock_in->format('H:i'));
+        $response->assertSeeText($attendance->clock_out->format('H:i'));
+    }
 }
