@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-
 use Database\Seeders\DatabaseSeeder;
 use App\Models\Attendance;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
