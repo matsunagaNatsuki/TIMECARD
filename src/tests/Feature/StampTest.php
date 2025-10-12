@@ -238,7 +238,7 @@ class StampTest extends TestCase
         $response->assertSee('休憩戻');
     }
 
-    public function test_stamp_page_attendance_function_break_time_list()
+    public function test_stamp_page_break_function_break_time_list()
     {
         $user = User::factory()->create();
         $attendance = Attendance::factory()->create([
@@ -249,6 +249,7 @@ class StampTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSee('退勤');
 
         $this->actingAs($user)->post('/attendance', [
             'attendance_id' => $attendance->id,
@@ -276,6 +277,28 @@ class StampTest extends TestCase
 
         $response->assertSee($breakEndDate);
         $response->assertSee($breakEndTime);
+    }
+
+    public function test_stamp_page_clock_out_function_clock_out_btn()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now(),
+            'clock_out' => null,
+            'status' => 'working',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSee('退勤');
+
+        $this->actingAs($user)->post('/attendance', [
+            'action' => 'clock_out',
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance');
+        $response->assertSee('退勤済');
     }
 
 
