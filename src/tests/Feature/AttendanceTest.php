@@ -39,4 +39,16 @@ class AttendanceTest extends TestCase
         $response->assertSeeText($attendance->clock_in->format('H:i'));
         $response->assertSeeText($attendance->clock_out->format('H:i'));
     }
+
+    public function test_attendance_user_list_page_month_get_function()
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/attendance/list');
+
+        $response->assertStatus(200);
+
+        $startOfMonth = now()->format('Y/m');
+
+        $response->assertSeeText($startOfMonth);
+    }
 }
