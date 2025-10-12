@@ -301,6 +301,30 @@ class StampTest extends TestCase
         $response->assertSee('退勤済');
     }
 
+    public function test_stamp_page_clock_out_function_clock_out_list()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/attendance', [
+            'action' => 'clock_in',
+        ]);
+
+        $this->actingAs($user)->post('/attendance', [
+            'action' => 'clock_out',
+        ]);
+
+        $attendance = \App\Models\Attendance::where('user_id', $user->id)->first();
+
+        $date = \Carbon\Carbon::parse($attendance->clock_out)->format('m/d');
+        $time = \Carbon\Carbon::parse($attendance->clock_out)->format('H:i');
+
+        $response = $this->actingAs($user)->get('/attendance/list');
+
+        $response->assertStatus(200);
+        $response->assertSee($date);
+        $response->assertSee($time);
+    }
+
 
 
 
