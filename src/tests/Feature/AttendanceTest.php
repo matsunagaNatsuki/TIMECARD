@@ -22,7 +22,7 @@ class AttendanceTest extends TestCase
     // 勤怠一覧情報取得機能（一般ユーザー）
     public function test_attendance_user_list_page_data_get_function()
     {
-        $user = User::find(11);
+        $user = User::factory()->create();
         $attendance = Attendance::factory()->create([
             'user_id' => $user->id,
             'date' => now()->toDateString(),
@@ -158,7 +158,8 @@ class AttendanceTest extends TestCase
         $response->assertSee('詳細');
 
         $detailResponse = $this->actingAs($user)->get(
-            'attendance/detail/' . $attendance->id);
+            'attendance/detail/' . $attendance->id
+        );
 
         $detailResponse->assertStatus(200);
     }
