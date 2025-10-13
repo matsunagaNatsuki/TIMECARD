@@ -80,15 +80,38 @@ class DetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(
-            'attendance/detail/' . $attendance->id
-        );
-
-        $response->assertStatus(200);
+            'attendance/detail/' . $attendance->id)
+            ->assertStatus(200);
 
         $response->assertSeeText($user->name);
         $response->assertSee('value="' . $attendance->clock_in->format('H:i') . '"', false);
         $response->assertSee('value="' . $attendance->clock_out->format('H:i') . '"', false);
     }
 
-    
+    public function test_attendance_user_detail_page_break_mach()
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now()->setTime(9,0),
+            'clock_out' => now()->setTime(18,0),
+            'status' => 'clock_out',
+        ]);
+
+        $break = $attendance->breaks()->create([
+            'attendance_id' => $attendance->id,
+            'break_start' => now()->setTime(12,0),
+            'break_end' => now()->setTime(13,0),
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            'attendance/detail/' . $attendance->id)
+            ->assertStatus(200);
+
+        $response->assertSeeText($user->name);
+        $response->assertSee('value="' . $break->break_start->format('H:i') . '"', false);
+        $response->assertSee('value="' . $break->break_end->format('H:i') . '"', false);
+    }
 }
