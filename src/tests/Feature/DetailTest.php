@@ -85,7 +85,10 @@ class DetailTest extends TestCase
 
         $response->assertStatus(200);
 
-        $response->assertSee($attendance->clock_in->format('H:i'));
-        $response->assertSee($attendance->clock_out->format('H:i'));
+        $response->assertSeeText($user->name);
+        $response->assertSee('value="' . $attendance->clock_in->format('H:i') . '"', false);
+        $response->assertSee('value="' . $attendance->clock_out->format('H:i') . '"', false);
     }
+
+    
 }
