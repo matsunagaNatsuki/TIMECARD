@@ -114,4 +114,28 @@ class DetailTest extends TestCase
         $response->assertSee('value="' . $break->break_start->format('H:i') . '"', false);
         $response->assertSee('value="' . $break->break_end->format('H:i') . '"', false);
     }
+
+    // 勤怠詳細情報修正機能（一般ユーザー）
+    public function test_attendance_user_detail_page_clock_in_after_clock_out()
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now()->setTime(9,0),
+            'clock_out' => now()->setTime(18,0),
+            'status' => 'clock_out',
+        ]);
+
+        $response = $this->actingAs($user)->post('attendance/detail/' . $attendance->id, [
+            'date' => $attendance->date,
+            'clock_in' => '19:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'clock_out' => '出勤時間もしくは退勤時間が不適切な値です',
+        ]);
+    }
 }
