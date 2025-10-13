@@ -203,4 +203,30 @@ class DetailTest extends TestCase
         ]);
     }
 
+    public function test_attendance_user_detail_page_remarks_null_check()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now()->setTime(9,0),
+            'clock_out' => now()->setTime(18,0),
+            'status' => 'clock_out',
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            'attendance/detail/' . $attendance->id
+        );
+
+        $response->assertStatus(200);
+
+        $response = $this->actingAs($user)->post('attendance/detail/' . $attendance->id, [
+            'remarks' => null,
+        ]);
+
+        $response->assertSessionHasErrors([
+            'remarks' => '備考を記入してください',
+        ]);
+    }
+
 }
