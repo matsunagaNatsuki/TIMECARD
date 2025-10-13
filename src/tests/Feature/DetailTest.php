@@ -55,7 +55,7 @@ class DetailTest extends TestCase
             'status' => 'clock_out',
         ]);
 
-        $response = $this->actingAS($user)->get(
+        $response = $this->actingAs($user)->get(
             'attendance/detail/' . $attendance->id
         );
 
@@ -65,5 +65,27 @@ class DetailTest extends TestCase
 
         $response->assertSeeText($date->format('Y年'));
         $response->assertSeeText($date->format('n月j日'));
+    }
+
+    public function test_attendance_user_detail_page_attendance_mach()
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now()->setTime(9,0),
+            'clock_out' => now()->setTime(18,0),
+            'status' => 'clock_out',
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            'attendance/detail/' . $attendance->id
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertSee($attendance->clock_in->format('H:i'));
+        $response->assertSee($attendance->clock_out->format('H:i'));
     }
 }
