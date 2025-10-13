@@ -91,7 +91,6 @@ class DetailTest extends TestCase
     public function test_attendance_user_detail_page_break_mach()
     {
         $user = User::factory()->create();
-
         $attendance = Attendance::factory()->create([
             'user_id' => $user->id,
             'date' => now()->toDateString(),
@@ -173,4 +172,35 @@ class DetailTest extends TestCase
             'breaks.0.start' => '休憩時間が不適切な値です',
         ]);
     }
+
+    public function test_attendance_user_detail_page_break_end_after_clock_out()
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => now()->setTime(9,0),
+            'clock_out' => now()->setTime(18,0),
+            'status' => 'clock_out',
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            'attendance/detail/' . $attendance->id
+        );
+
+        $response->assertStatus(200);
+
+        $response = $this->actingAs($user)->post('attendance/detail/' . $attendance->id, [
+            'date' => $attendance->date,
+            'breaks' => [
+                ['start' => 'null', 'end' => '19:00'],
+            ],
+            'clock_out' => '18:00',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'breaks.0.end' => '休憩時間もしくは退勤時間が不適切な値です',
+        ]);
+    }
+
 }
