@@ -8,6 +8,8 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+
 
 class DetailTest extends TestCase
 {
@@ -17,6 +19,14 @@ class DetailTest extends TestCase
     {
         parent::setUp();
         $this->seed(DatabaseSeeder::class);
+    }
+
+    protected function tearDown(): void
+    {
+        while (ob_get_level() > 1) {
+            @ob_end_clean();
+        }
+        parent::tearDown();
     }
 
     // 勤怠詳細情報取得機能（一般ユーザー）
@@ -228,5 +238,38 @@ class DetailTest extends TestCase
             'remarks' => '備考を記入してください',
         ]);
     }
+
+    public function test_attendance_user_detail_page_approval_and_Application_list_check()
+    {
+        $user = User::factory()->create(['role' => 'users']);
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $response = $this->actingAs($user)->post('/attendance/detail/' . $attendance->id, [
+            'date' => $attendance->date,
+            'clock_in' => '10:00',
+            'clock_out' => '19:00',
+            'remarks' => '修正申請テスト',
+        ]);
+        $response->assertStatus(302);
+
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+
+        $listResponse = $this->actingAs($admin)->get(route('admin.requests'));
+        $listResponse->assertStatus(200);
+        $listResponse->assertSee('修正申請テスト');
+
+
+    }
+
+
 
 }

@@ -1,6 +1,6 @@
 @extends('layouts.default')
 
-@section('title', '修正申請詳細画面(管理者)')
+@section('title', '修正申請承認画面(管理者)')
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('/css/approval.css') }}">
@@ -89,3 +89,4 @@
     </form>
 @endif
 </div>
+@endsection
