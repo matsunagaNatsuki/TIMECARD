@@ -357,7 +357,38 @@ class DetailTest extends TestCase
         $listResponse->assertSee('修正申請テスト');
     }
 
-    
+    public function test_attendance_user_detail_page_detail_redirect()
+    {
+        $user = User::factory()->create(['role' => 'users']);
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $response = $this->actingAs($user)->post('/attendance/detail/' . $attendance->id, [
+            'attendance_id' => $attendance->id,
+            'date' => $attendance->date,
+            'clock_in' => '10:00',
+            'clock_out' => '19:00',
+            'remarks' => '修正申請テスト',
+        ]);
+        $response->assertStatus(302);
+
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $listResponse = $this->actingAs($admin)->get('/admin/requests');
+        $listResponse->assertStatus(200);
+        $listResponse->assertSee('詳細');
+
+        $requestsResponse = $this->actingAs($admin)->get(
+            'admin/requests/' . $attendance->id
+        );
+    }
 
 
 
