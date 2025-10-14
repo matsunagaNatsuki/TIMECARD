@@ -266,6 +266,7 @@ class DetailTest extends TestCase
 
         $listResponse = $this->actingAs($admin)->get(route('admin.requests'));
         $listResponse->assertStatus(200);
+        $listResponse->assertSee($attendance->date->format('Y/m/d'));
         $listResponse->assertSee('修正申請テスト');
 
         $request = AttendanceRequest::first();
@@ -275,9 +276,41 @@ class DetailTest extends TestCase
         );
         $appResponse->assertStatus(200);
 
+        $appResponse->assertSee($attendance->date->format('Y年'));
+        $appResponse->assertSee($attendance->date->format('n月j日'));
         $appResponse->assertSee('10:00');
         $appResponse->assertSee('19:00');
         $appResponse->assertSee('修正申請テスト');
+    }
+
+    public function test_attendance_user_detail_page_pending_list_check()
+    {
+        $user = User::factory()->create(['role' => 'users']);
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->toDateString(),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $response = $this->actingAs($user)->post('/attendance/detail/' . $attendance->id, [
+            'date' => $attendance->date,
+            'clock_in' => '10:00',
+            'clock_out' => '19:00',
+            'remarks' => '修正申請テスト',
+            'status' => 'pending',
+        ]);
+        $response->assertStatus(302);
+
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $listResponse = $this->actingAs($admin)->get('/admin/requests?tab=pending');
+        $listResponse->assertStatus(200);
+        $listResponse->assertSee($attendance->date->format('Y/m/d'));
+        $listResponse->assertSee('修正申請テスト');
     }
 
 
