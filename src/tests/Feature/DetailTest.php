@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Attendance;
+use App\Models\AttendanceRequest;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -267,7 +268,16 @@ class DetailTest extends TestCase
         $listResponse->assertStatus(200);
         $listResponse->assertSee('修正申請テスト');
 
+        $request = AttendanceRequest::first();
 
+        $appResponse = $this->actingAs($admin)->get(
+            route('admin.application', ['id' => $request->id])
+        );
+        $appResponse->assertStatus(200);
+
+        $appResponse->assertSee('10:00');
+        $appResponse->assertSee('19:00');
+        $appResponse->assertSee('修正申請テスト');
     }
 
 
