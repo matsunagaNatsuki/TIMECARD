@@ -194,7 +194,6 @@ class AttendanceTest extends TestCase
         }
 
         $response = $this->actingAs($admin)->get('/admin/attendances?date=' . $date);
-
         $response->assertStatus(200);
 
         foreach ($users as $index => $user) {
@@ -226,5 +225,46 @@ class AttendanceTest extends TestCase
         $response->assertStatus(200);
 
         $response->assertSeeText($date);
+    }
+
+    public function test_attendance_admin_list_page_previous_day_get()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/attendances');
+        $response->assertStatus(200);
+
+        $yesterday = now()->subDay()->toDateString();
+
+        $users = User::factory()->count(2)->create(['role' => 'users']);
+
+        foreach($users as $index => $user) {
+            Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $yesterday,
+                'clock_in'  => Carbon::parse($yesterday)->setTime($index + 8, 0, 0),
+                'clock_out' => Carbon::parse($yesterday)->setTime($index + 17, 0, 0),
+
+            ]);
+        }
+
+        $response = $this->actingAs($admin)->get('/admin/attendances?date=' . $yesterday);
+        $response->assertStatus(200);
+
+        foreach ($users as $index => $user) {
+            $clockIn = Carbon::createFromTime($index + 8,0)->format('H:i');
+            $clockOut = Carbon::createFromTime($index + 17,0)->format('H:i');
+
+            $totalWorkTime = Carbon::parse($clockIn)->diffInHours(Carbon::parse($clockOut));
+
+            $breakHours = 1;
+
+            $response->assertSee($user->name);
+            $response->assertSee($clockIn);
+            $response->assertSee($clockOut);
+
+            $response->assertSee((string)$totalWorkTime);
+            $response->assertSee((string)$breakHours);
+        }
     }
 }
