@@ -267,4 +267,43 @@ class AttendanceTest extends TestCase
             $response->assertSee((string)$breakHours);
         }
     }
+
+    public function test_attendance_admin_list_page_next_day_get()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/attendances');
+        $response->assertStatus(200);
+
+        $tomorrow = now()->addDay()->toDateString();
+
+        $users = User::factory()->count(2)->create(['role' => 'users']);
+
+        foreach($users as $index => $user) {
+            Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $tomorrow,
+                'clock_in' => Carbon::parse($tomorrow)->setTime($index + 8,0,0),
+                'clock_out' => Carbon::parse($tomorrow)->setTime($index + 17, 0, 0),
+            ]);
+        }
+
+        $response = $this->actingAs($admin)->get('/admin/attendances? date=' . $tomorrow);
+
+        foreach ($users as $index => $user) {
+            $clockIn= Carbon::createFromTime($index + 8,0)->format('H:i');
+            $clockOut = Carbon::createFromTime($index + 17,0)->format('H:i');
+
+            $totalWorkTime = Carbon::parse($clockIn)->diffInHours(Carbon::parse($clockOut));
+
+            $breakHours = 1;
+
+            $response->assertSee($user->name);
+            $response->assertSee($clockIn);
+            $response->assertSee($clockOut);
+
+            $response->assertSee((string)$totalWorkTime);
+            $response->assertSee((string)$breakHours);
+        }
+    }
 }
