@@ -19,6 +19,14 @@ class AttendanceTest extends TestCase
         $this->seed(DatabaseSeeder::class);
     }
 
+    protected function tearDown(): void
+    {
+        while (ob_get_level() > 1) {
+            @ob_end_clean();
+        }
+        parent::tearDown();
+    }
+
     // 勤怠一覧情報取得機能（一般ユーザー）
     public function test_attendance_user_list_page_data_get_function()
     {
@@ -162,5 +170,61 @@ class AttendanceTest extends TestCase
         );
 
         $detailResponse->assertStatus(200);
+    }
+
+    // 勤怠一覧情報取得機能（管理者）
+    public function test_attendance_admin_list_page_all_users_attendance_day()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/attendances');
+        $response->assertStatus(200);
+
+        $users = User::factory()->count(2)->create(['role' => 'users']);
+
+        $date = now()->toDateString();
+
+        foreach($users as $index => $user) {
+            Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $date,
+                'clock_in' => sprintf('%02d:00', $index + 8),
+                'clock_out' => sprintf('%02d:00', $index + 17),
+            ]);
+        }
+
+        $response = $this->actingAs($admin)->get('/admin/attendances?date=' . $date);
+
+        $response->assertStatus(200);
+
+        foreach ($users as $index => $user) {
+            $clockIn = Carbon::createFromTime($index + 8,0)->format('H:i');
+            $clockOut = Carbon::createFromTime($index + 17,0)->format('H:i');
+
+            $totalWorkTime = Carbon::parse($clockIn)->diffInHours(Carbon::parse($clockOut));
+
+            $breakHours = 1;
+
+            $response->assertSee($user->name);
+            $response->assertSee($clockIn);
+            $response->assertSee($clockOut);
+
+            $response->assertSee((string)$totalWorkTime);
+            $response->assertSee((string)$breakHours);
+
+
+        }
+    }
+
+    public function test_attendance_admin_list_page_now_date_check()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $date = now()->format('Y/m/d');
+
+        $response = $this->actingAs($admin)->get('/admin/attendances');
+        $response->assertStatus(200);
+
+        $response->assertSeeText($date);
     }
 }
