@@ -215,14 +215,7 @@ class DetailTest extends TestCase
     public function test_attendance_user_detail_page_remarks_null_check()
     {
         $user = User::factory()->create();
-        $attendance = Attendance::factory()->create([
-            'user_id' => $user->id,
-            'date' => now()->toDateString(),
-            'clock_in' => now()->setTime(9,0),
-            'clock_out' => now()->setTime(18,0),
-            'status' => 'clock_out',
-        ]);
-
+        $attendance = Attendance::factory()->create();
         $response = $this->actingAs($user)->get(
             'attendance/detail/' . $attendance->id
         );
@@ -517,5 +510,29 @@ class DetailTest extends TestCase
             'breaks.0.end' => '休憩時間もしくは退勤時間が不適切な値です',
         ]);
         $response->assertStatus(302);
+    }
+
+    public function test_attendance_admin_detail_page_remarks_null_check()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $user = User::factory()->create(['role' => 'users']);
+        $date = Carbon::now();
+        $attendance = Attendance::factory()->create();
+        $response = $this->actingAs($admin)->get(route('admin.detail',
+            ['id' => $attendance->id]
+        ));
+        $response->assertStatus(200);
+
+        $response = $this->actingAs($user)->post(route('admin.revise', $attendance->id), [
+            'remarks' => null,
+        ]);
+
+        $response->assertSessionHasErrors([
+            'remarks' => '備考を記入してください',
+        ]);
     }
 }
