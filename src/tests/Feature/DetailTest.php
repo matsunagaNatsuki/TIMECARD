@@ -140,7 +140,6 @@ class DetailTest extends TestCase
         $response = $this->actingAs($user)->get(
             'attendance/detail/' . $attendance->id
         );
-
         $response->assertStatus(200);
 
         $response = $this->actingAs($user)->post('attendance/detail/' . $attendance->id, [
@@ -417,8 +416,38 @@ class DetailTest extends TestCase
         $response->assertSeeText($date->format('m月d日'));
         $response->assertSee($attendance->clock_in->format('H:i'));
         $response->assertSee($attendance->clock_out->format('H:i'));
+    }
 
+    public function test_attendance_admin_detail_page_clock_in_after_clock_out()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
 
+        $user = User::factory()->create(['role' => 'users']);
+        $date = Carbon::now();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => $date->toDateString(),
+            'clock_in' => $date->copy()->setTime(9,0,0),
+            'clock_out' => $date->copy()->setTime(18,0,0),
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.detail',
+            ['id' => $attendance->id]
+        ));
+        $response->assertStatus(200);
+
+        $response = $this->actingAs($user)->post(route('admin.revise' , $attendance->id),[
+            'date' => $attendance->date,
+            'clock_in' => '19:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'clock_out' => '出勤時間もしくは退勤時間が不適切な値です',
+        ]);
     }
 
 
