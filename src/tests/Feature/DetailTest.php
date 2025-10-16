@@ -390,6 +390,37 @@ class DetailTest extends TestCase
         );
     }
 
+    // 勤怠詳細情報取得・修正機能（管理者）
+    public function test_attendance_admin_detail_page_data_select_check()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $user = User::factory()->create(['role' => 'users']);
+        $date = Carbon::now();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => $date->toDateString(),
+            'clock_in' => $date->copy()->setTime(9,0,0),
+            'clock_out' => $date->copy()->setTime(18,0,0),
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.detail',
+            ['id' => $attendance->id]
+        ));
+        $response->assertStatus(200);
+
+        $response->assertSee($user->name);
+        $response->assertSeeText($date->format('Y年'));
+        $response->assertSeeText($date->format('m月d日'));
+        $response->assertSee($attendance->clock_in->format('H:i'));
+        $response->assertSee($attendance->clock_out->format('H:i'));
+
+
+    }
+
 
 
 }
