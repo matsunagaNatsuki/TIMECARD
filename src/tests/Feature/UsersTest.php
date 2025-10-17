@@ -8,6 +8,7 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class UsersTest extends TestCase
 {
@@ -60,20 +61,27 @@ class UsersTest extends TestCase
             'role' => 'users',
         ]);
 
-        $date = now();
-        $attendance = Attendance::factory()->create([
-            'user_id' => $user->id,
-            'date' => $date->toDateString(),
-            'clock_in' => $date->copy()->setTime(9, 0),
-            'clock_out' => $date->copy()->setTime(18, 0),
-            'status' => 'clock_out'
-        ]);
+        $start = now()->subMonth()->startOfMonth();
+        $end = now()->endOfMonth();
+        $month = CarbonPeriod::create($start, $end);
 
-        $attendance->breaks()->create([
-            'attendance_id' => $attendance->id,
-            'break_start' => $date->copy()->setTime(12,0),
-            'break_end' => $date->copy()->setTime(13,0),
-        ]);
+        $attendances = collect();
+        foreach($month as $date) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $date->toDateString(),
+                'clock_in' => $date->copy()->setTime(9, 0),
+                'clock_out' => $date->copy()->setTime(18, 0),
+                'status' => 'clock_out'
+            ]);
+
+            $attendance->breaks()->create([
+                'break_start' => $date->copy()->setTime(12,0),
+                'break_end' => $date->copy()->setTime(13,0),
+            ]);
+
+            $attendance->push($attendance);
+        }
 
         $breakMinutes = 60;
         $clockIn = Carbon::parse($attendance->clock_in);
@@ -89,58 +97,74 @@ class UsersTest extends TestCase
         $response->assertStatus(200);
 
         $response->assertSeeText($user->name);
-        $response->assertSeeText(Carbon::parse($attendance->date)->format('m/d'));
-        $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
-        $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
-        $response->assertSeeText($breakFormatted);
-        $response->assertSeeText($totalFormatted);
+
+        foreach($attendances as $attendance) {
+            $response->assertSeeText(Carbon::parse($attendance->date)->format('m/d'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($breakFormatted);
+            $response->assertSeeText($totalFormatted);
+        }
     }
 
-    // 前月ボタン
-    // public function test_all_users_list_page_previous_month_get()
-    // {
-    //     $admin = User::factory()->create([
-    //         'role' => 'admin',
-    //         'email_verified_at' => now(),
-    //     ]);
+    public function test_all_users_list_page_previous_month_get()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
 
-    //     $user = User::factory()->create([
-    //         'role' => 'users',
-    //     ]);
+        $user = User::factory()->create([
+            'role' => 'users',
+        ]);
 
-    //     $previousMonthDate = now()->subMonth()->startOfMonth();
-    //     $attendance = Attendance::factory()->create([
-    //         'user_id' => $user->id,
-    //         'date' => $previousMonthDate->toDateString(),
-    //         'clock_in' => $previousMonthDate->copy()->setTime(9, 0),
-    //         'clock_out' => $previousMonthDate->copy()->setTime(18, 0),
-    //         'status' => 'clock_out',
-    //     ]);
+        $start = now()->subMonth()->startOfMonth();
+        $end = now()->subMonth()->endOfMonth();
+        $month = CarbonPeriod::create($start, $end);
 
-    //     $attendance->breaks()->create([
-    //         'attendance_id' => $attendance->id,
-    //         'break_start' => $previousMonthDate->copy()->setTime(12, 0),
-    //         'break_end' => $previousMonthDate->copy()->setTime(13, 0),
-    //     ]);
+        $attendances = collect();
+        foreach($month as $date) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $date->toDateString(),
+                'clock_in' => $date->copy()->setTime(9, 0),
+                'clock_out' => $date->copy()->setTime(18, 0),
+                'status' => 'clock_out',
+            ]);
 
-    //     $breakMinutes = 60;
-    //     $clockIn = Carbon::parse($attendance->clock_in);
-    //     $clockOut = Carbon::parse($attendance->clock_out);
+            $attendance->breaks()->create([
+                'break_start' => $date->copy()->setTime(12, 0),
+                'break_end' => $date->copy()->setTime(13, 0),
+            ]);
+        }
 
-    //     $workMinutes = $clockOut->diffInMinutes($clockIn) - $breakMinutes;
+        $monthPrevious = $start->format('Y-m');
+        $response = $this->actingAs($admin)->get(
+            route('users.attendance', ['user' => $user->id, 'month' => $monthPrevious])
+        );
+        $response->assertStatus(200);
 
-    //     $breakFormatted = sprintf('%d:%02d', intdiv($breakMinutes, 60), $breakMinutes % 60);
-    //     $totalFormatted = sprintf('%d:02d', intdiv($workMinutes, 60), $workMinutes % 60);
+        $breakMinutes = 60;
+        $clockIn = Carbon::parse($attendance->clock_in);
+        $clockOut = Carbon::parse($attendance->clock_out);
 
-    //     $response = $this->actingAs($admin)->get(route('users.attendance',
-    //         ['user' => $user->id,
-    //     ]));
-    //     $response->assertStatus(200);
+        $workMinutes = $clockOut->diffInMinutes($clockIn) - $breakMinutes;
 
-    //     $response->assertSeeText($attendance->date->format('m/d'));
-    //     $response->assertSeeText($attendance->clock_in->format('H:i'));
-    //     $response->assertSeeText($attendance->clock_out->format('H:i'));
-    //     $response->assertSeeText($breakFormatted);
-    //     $response->assertSeeText($totalFormatted);
-    // }
+        $breakFormatted = sprintf('%d:%02d', intdiv($breakMinutes, 60), $breakMinutes % 60);
+        $totalFormatted = sprintf('%d:%02d', intdiv($workMinutes, 60), $workMinutes % 60);
+
+        $response = $this->actingAs($admin)->get(route('users.attendance',
+            ['user' => $user->id,
+            'month' => $monthPrevious
+        ]));
+        $response->assertStatus(200);
+
+        foreach($attendances as $attendance) {
+            $response->assertSeeText(Carbon::parse($attendance->date)->format('m/d'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($breakFormatted);
+            $response->assertSeeText($totalFormatted);
+        }
+    }
 }
