@@ -102,7 +102,7 @@ class RequestTest extends TestCase
         }
     }
 
-    public function test_revise_application_application_page_detail_check()
+    public function test_revise_application_page_detail_check()
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -133,9 +133,46 @@ class RequestTest extends TestCase
         $response->assertSee($request->clock_in->format('H:i'));
         $response->assertSee($request->clock_out->format('H:i'));
         $response->assertSeeText('シフト変更');
-
-
     }
 
+    public function test_revise_application_page_approval_btn_update()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
 
+        $user = User::factory()->create(['role' => 'users']);
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'clock_in' => now()->settime(9,0),
+            'clock_out' => now()->setTime(18,0),
+        ]);
+
+        $request = AttendanceRequest::factory()->create([
+            'attendance_id' => $attendance->id,
+            'request_by' => $user->id,
+            'clock_in' => now()->setTime(10,0),
+            'clock_out' => now()->setTime(19,0),
+            'remarks' => 'シフト変更',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin)->post(
+            route('admin.application', $request->id)
+        );
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('requests', [
+            'id' => $request->id,
+            'status' => 'approved',
+        ]);
+
+        $this->assertDatabaseHas('attendances', [
+            'id' => $attendance->id,
+            'clock_in' => $request->clock_in->format('Y-m-d H:i:s'),
+            'clock_out' => $request->clock_out->format('Y-m-d H:i:s'),
+            'remarks' => 'シフト変更',
+        ]);
+    }
 }
