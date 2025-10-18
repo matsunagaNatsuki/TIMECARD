@@ -61,7 +61,7 @@ class UsersTest extends TestCase
             'role' => 'users',
         ]);
 
-        $start = now()->subMonth()->startOfMonth();
+        $start = now()->startOfMonth();
         $end = now()->endOfMonth();
         $month = CarbonPeriod::create($start, $end);
 
@@ -168,7 +168,7 @@ class UsersTest extends TestCase
         }
     }
 
-    public function test_attendance_admin_list_page_next_month_get()
+    public function test_all_users_list_page_next_month_get()
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -228,6 +228,46 @@ class UsersTest extends TestCase
             $response->assertSeeText($breakFormatted);
             $response->assertSeeText($totalFormatted);
         }
+    }
+
+    public function test_all_users__list_page_detail_page_redirect_check()
+    {
+        $admin = User::factory()->create([
+            'role' =>  'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $user = User::factory()->create(['role' => 'users']);
+
+        $start = now();
+        $end = now();
+        $month = CarbonPeriod::create($start,$end);
+
+        $attendances = collect();
+        foreach($month as $date) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $date->toDateString(),
+                'clock_in' => $date->copy()->setTime(9, 0),
+                'clock_out' => $date->copy()->setTime(18, 0),
+                'status' => 'clock_out'
+            ]);
+
+            $attendance->push($attendance);
+        }
+
+        $response = $this->actingAs($admin)->get('/admin/attendances/', ['attendance' => $attendance->id]);
+        $response->assertStatus(200);
+
+        $response->assertSee('詳細');
+
+        $detailUrl = route('admin.detail', $attendance->id);
+        $response = $this->actingAs($admin)->get($detailUrl);
+
+        $response->assertStatus(200);
+
+        $response->assertSeeText(Carbon::parse($attendance->date)->format('Y年'));
+        $response->assertSeeText(Carbon::parse($attendance->date)->format('n月j日'));
     }
 
 
