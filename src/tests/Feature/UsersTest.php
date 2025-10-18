@@ -50,7 +50,6 @@ class UsersTest extends TestCase
         }
     }
 
-    // ユーザーの勤怠勤怠情報
     public function test_all_users_list_data_get_function()
     {
         $admin = User::factory()->create([
