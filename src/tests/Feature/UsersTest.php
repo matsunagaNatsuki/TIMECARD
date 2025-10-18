@@ -167,4 +167,68 @@ class UsersTest extends TestCase
             $response->assertSeeText($totalFormatted);
         }
     }
+
+    public function test_attendance_admin_list_page_next_month_get()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $user = User::factory()->create([
+            'role' => 'users',
+        ]);
+
+        $start = now()->addMonth()->startOfMonth();
+        $end = now()->addMonth()->endOfMonth();
+        $month = CarbonPeriod::create($start, $end);
+
+        $attendances = collect();
+        foreach($month as $date) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $date->toDateString(),
+                'clock_in' => $date->copy()->setTime(9,0),
+                'clock_out' => $date->copy()->setTime(18,0),
+                'status' => 'clock_out',
+            ]);
+
+            $attendance->breaks()->create([
+                'break_start' => $date->copy()->setTime(12,0),
+                'break_end' => $date->copy()->setTime(13,0),
+            ]);
+            $attendances->push($attendance);
+        }
+
+        $monthNext = $start->format('Y-m');
+        $response = $this->actingAs($admin)->get(
+            route('users.attendance', ['user' => $user->id,'month'=>$monthNext])
+        );
+        $response->assertStatus(200);
+
+        $breakMinutes = 60;
+        $clockIn = Carbon::parse($attendance->clock_in);
+        $clockOut = Carbon::parse($attendance->clock_out);
+
+        $workMinutes = $clockOut->diffInMinutes($clockIn) - $breakMinutes;
+
+        $breakFormatted = sprintf('%d:%02d', intdiv($breakMinutes, 60), $breakMinutes % 60);
+        $totalFormatted = sprintf('%d:%02d', intdiv($workMinutes, 60), $workMinutes % 60);
+
+        $response =$this->actingAs($admin)->get(route('users.attendance',
+            ['user' => $user->id,
+            'month' => $monthNext
+        ]));
+        $response->assertStatus(200);
+
+        foreach($attendances as $attendance) {
+            $response->assertSeeText(Carbon::parse($attendance->date)->format('m/d'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($breakFormatted);
+            $response->assertSeeText($totalFormatted);
+        }
+    }
+
+
 }
