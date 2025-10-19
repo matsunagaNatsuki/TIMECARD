@@ -1,5 +1,3 @@
-export $(shell sed -n 's/^\([^#]*\)=.*/\1/p' .env)
-
 init:
 	docker-compose up -d --build
 	docker-compose exec php composer install
