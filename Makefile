@@ -8,9 +8,14 @@ init:
         docker compose exec php sed -i 's/DB_USERNAME=.*/DB_USERNAME=laravel_user/' .env; \
         docker compose exec php sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=laravel_pass/' .env; \
     fi
+	@if ! docker compose exec php test -f .env.testing; then \
+		docker compose exec php cp .env.testing.example .env.testing;
+		docker compose exec php sed -i 's/DB_DATABASE=.*/ DB_DATABASE=demo_test/' .env.testing'; \
+		docker compose exec php sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env.testing; \
+		docker compose exec php sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env.testing; \
+	fi
 	docker compose exec php php artisan key:generate
 	docker compose exec php chmod -R 777 storage bootstrap/cache
-	docker-compose exec php php artisan key:generate
 	@make fresh
 
 fresh:
