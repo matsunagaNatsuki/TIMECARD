@@ -38,4 +38,4 @@ stop:
 	docker-compose stop
 
 db-test-create:
-    docker compose exec -T db mysql -u root -p$$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS demo_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+	docker compose exec -T db mysql -u root -p$$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS demo_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
