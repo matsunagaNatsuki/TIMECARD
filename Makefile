@@ -1,3 +1,5 @@
+export $(shell sed -n 's/^\([^#]*\)=.*/\1/p' .env)
+
 init:
 	docker-compose up -d --build
 	docker-compose exec php composer install
@@ -37,19 +39,5 @@ cache:
 stop:
 	docker-compose stop
 
-DC := docker compose
-
-.PHONY: db-test-create wait-db
-
-wait-db:
-	@echo "Waiting for MySQL (mysql:3306) ..."
-	@$(DC) exec -T php sh -lc 'for i in $$(seq 1 60); do (exec 3<>/dev/tcp/mysql/3306) 2>/dev/null && exit 0; sleep 1; done; echo "MySQL not ready" >&2; exit 1'
-	@echo "MySQL is ready."
-
-db-test-create: wait-db
-	@echo "Creating test DB (demo_test) if missing..."
-	@$(DC) exec -T mysql sh -lc 'echo "Root PW present? $${MYSQL_ROOT_PASSWORD:+yes}" >/dev/null; \
-	  mysql -uroot -p"$$MYSQL_ROOT_PASSWORD" \
-	  -e "CREATE DATABASE IF NOT EXISTS demo_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"' \
-	  || (echo "Failed to create demo_test"; exit 1)
-	@echo "demo_test ready."
+db-test-create:
+	docker compose exec -T mysql mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS demo_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
