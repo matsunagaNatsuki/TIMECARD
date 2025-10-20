@@ -84,6 +84,8 @@ class FortifyServiceProvider extends ServiceProvider
                     if($request->routeIs('admin.login.post')) {
                         return redirect()->route('admin.attendances');
                     }
+
+                    return redirect()->intended('/attendance');
                 }
             };
         });
