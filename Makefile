@@ -36,6 +36,3 @@ cache:
 	docker-compose exec php php artisan config:cache
 stop:
 	docker-compose stop
-
-db-test-create:
-	docker compose exec -T mysql mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS demo_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
