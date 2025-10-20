@@ -93,5 +93,10 @@ password: password
     修正申請承認画面（管理者）	        /admin/requests/{id}
 ```
 
+## URL
+- 開発環境　https://localhost/
+- phpMyAdmin https://localhost:8080/
+
+
 
 
