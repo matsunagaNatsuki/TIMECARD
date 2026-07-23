@@ -41,10 +41,6 @@ Laravelを用いたMVC構成をはじめ、認証・認可、データベース�
 - MailHog
 - HTML / CSS
 
-## データベース設計
-
-![ER図](./docs/ER.png)
-
 ## 環境構築
 
 ### 前提
